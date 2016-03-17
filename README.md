@@ -8,7 +8,9 @@ Decided that I wanted to leave an example of using both traditional POSIX librar
 
 ## Caveats and Opinionated Stuff
 
-Caveat emptor: changing any header file will rebuild the entire project. Also, I prefer to include headers from the project itself using quotes. If you're an angle bracket fan, add `CPPFLAGS += -Isrc` to the top of `Makefile`.
+Caveat emptor: changing any header file will rebuild the entire project. Another one: not sure why, but I decided it was better to copy `src`'s hierarchy to `obj` using a pre-build hook, as opposed to flattening said hierarchy for the purpose of building objects.
+
+Personal preference: I like to include headers from the project itself using quotes. If you're an angle bracket fan, add `CPPFLAGS += -Isrc` to the top of `Makefile`.
 
 ## Copyright
 
