@@ -10,7 +10,7 @@ OBJECTS		= $(patsubst src/%.c,obj/%.o,$(SOURCES))
 TARGET		:= bin/thing
 
 .PHONY:		all debug clean
-.SECONDARY:	pre-build main-build post-build
+.SECONDARY:	pre-build post-build main-build
 
 all:		main-build
 debug:		export DEBUGFLAGS := -DDEBUG -g
