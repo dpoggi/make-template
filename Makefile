@@ -1,4 +1,5 @@
 CC		:= clang
+CPPFLAGS	+= -I/usr/local/include
 CFLAGS		+= -std=c99 -m64 -fPIC -O2 -fstack-protector -fvisibility=hidden -W -Wall -Wno-unused-parameter -Wno-unused-function -Wno-unused-label -Wpointer-arith -Wformat -Wreturn-type -Wsign-compare -Wmultichar -Winit-self -Wuninitialized -Wno-deprecated -Wformat-nonliteral -Wformat-security -Werror -pedantic
 LDLIBS		:= -lpcre
 FRAMEWORKS	:= -framework CoreFoundation
