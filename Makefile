@@ -1,38 +1,54 @@
-CC		:= clang
-CPPFLAGS	+= -I/usr/local/include
-CFLAGS		+= -std=c99 -m64 -fPIC -O2 -fstack-protector -fvisibility=hidden -W -Wall -Wno-unused-parameter -Wno-unused-function -Wno-unused-label -Wpointer-arith -Wformat -Wreturn-type -Wsign-compare -Wmultichar -Winit-self -Wuninitialized -Wno-deprecated -Wformat-nonliteral -Wformat-security -Werror -pedantic
-LDLIBS		:= -lpcre
-FRAMEWORKS	:= -framework CoreFoundation
-RM		:= rm -rf
+MAKEDEPEND	?= makedepend
+INSTALL		?= install
 
-SOURCES		= $(shell find src -iname '*.c' -print)
-HEADERS		= $(shell find src -iname '*.h' -print)
-OBJECTS		= $(patsubst src/%.c,obj/%.o,$(SOURCES))
-TARGET		:= bin/thing
+PKGS		:= libpq
+CPPFLAGS	+= $(shell pkg-config --cflags-only-I $(PKGS) 2>/dev/null)
+CFLAGS		+= -std=gnu99 -m64 -fPIC -fstack-protector -fvisibility=hidden -W -Wall -Wno-unused-parameter -Wno-unused-function -Wno-unused-label -Wpointer-arith -Wformat -Wreturn-type -Wsign-compare -Wmultichar -Winit-self -Wuninitialized -Wno-deprecated -Wformat-nonliteral -Wformat-security -Werror -pedantic
+LDFLAGS		+= $(shell pkg-config --libs-only-L $(PKGS) 2>/dev/null)
+LDLIBS		:= $(shell pkg-config --libs-only-l $(PKGS) 2>/dev/null)
 
-.PHONY:		all debug clean
-.SECONDARY:	pre-build post-build main-build
+SOURCES		:= $(wildcard *.c)
+OBJECTS		:= $(SOURCES:%.c=%.o)
+TARGET		:= pg_escape
 
-all:		main-build
-debug:		export DEBUGFLAGS := -DDEBUG -g
-debug:		main-build
+PREFIX		?= /usr/local
 
-pre-build:	PCT := %
-pre-build:
-	@find src -type d -mindepth 1 -print | cut -b5- | xargs -I $(PCT) mkdir -p "obj/$(PCT)"
+.PHONY:		all debug clean depend install help
 
-post-build:
-	@:
+all:		CFLAGS += -O2
+all:		$(TARGET)
 
-main-build:	pre-build
-	@$(MAKE) --no-print-directory $(TARGET)
-
-obj/%.o:	src/%.c $(HEADERS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEBUGFLAGS) -o $@ -c $<
+debug:		CFLAGS += -O0 -g
+debug:		$(TARGET)
 
 $(TARGET):	$(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LOADLIBES) $(LDLIBS) $(FRAMEWORKS)
-	@$(MAKE) --no-print-directory post-build
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+%.o:		%.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 clean:
-	$(RM) bin/* obj/*
+	$(RM) $(TARGET) $(OBJECTS)
+
+depend:
+	$(MAKEDEPEND) -- $(CPPFLAGS) $(CFLAGS) -- $(SOURCES) 2>/dev/null
+
+install:	OWNER := $(shell id -un)
+install:	GROUP := $(shell id -gn)
+install:	all
+	$(INSTALL) -p -o $(OWNER) -g $(GROUP) -m 0755 $(TARGET) $(PREFIX)/bin
+
+help:
+	@echo "$(TARGET) Makefile"
+	@echo
+	@echo "Usage:"
+	@echo "    make[ all]           Build $(TARGET)"
+	@echo "    make debug           Build $(TARGET) with debug symbols"
+	@echo "    make clean           Remove build artifacts"
+	@echo "    make depend          Bring dependencies up-to-date"
+	@echo
+	@echo "    make install         Install $(TARGET) to PREFIX [$(PREFIX)]"
+	@echo
+	@echo "    make help            Display this message"
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

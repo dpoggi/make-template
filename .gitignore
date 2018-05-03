@@ -1,3 +1,10 @@
+# General
+*~
+*.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
 # Object files
 *.o
 *.ko
@@ -14,7 +21,7 @@
 *.la
 *.lo
 
-# Shared objects (inc. Windows DLLs)
+# Shared objects (including Windows DLLs)
 *.dll
 *.so
 *.so.*
@@ -27,8 +34,10 @@
 *.i*86
 *.x86_64
 *.hex
-/bin/*
-!/bin/.keep
+pg_escape
 
 # Debug files
 *.dSYM/
+
+# makedepend
+Makefile.bak
